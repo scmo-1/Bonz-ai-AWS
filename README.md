@@ -2,7 +2,7 @@
 
 ## grupp: Simon Olsson, Oskar Blomberg, Andrei Manea
 
-## Gruppexamination: Bonz.ai 
+## Gruppexamination: Bonz.ai
 
 Bonz.ai, företaget bakom hotellet, har alltid strävat efter att vara i framkant när det gäller att använda teknik för att förbättra kundupplevelsen. De har en stark kultur av innovation och är inte rädda för att tänka utanför boxen.
 
@@ -23,20 +23,21 @@ User stories: https://github.com/orgs/JS22-backend-fordjupning/projects/2/views/
 **Affärslogik**
 
 _Rum_
-* Det finns totalt **20 rum** på hotellet som kan bokas dock behöver man inte ta hänsyn till datum (men man får).
-* Det finns tre typer av rum:
-  * Enkelrum som tillåter enbart en 1 gäst
-  * Dubbelrum som tillåter 2 gäster
-  * Svit som tillåter 3 gäster
-* Enkelrum kostar 500 kr / natt
-* Dubbelrum kostar 1000 kr / natt
-* Svit kostar 1500 kr / natt
-* Det går att ha olika typer av rum i en bokning men antalet gäster måste stämma överens med ovan logik. Exempel: 3 personer behöver antingen boka en svit eller ett enkelrum och ett dubbelrum.
+
+- Det finns totalt **20 rum** på hotellet som kan bokas dock behöver man inte ta hänsyn till datum (men man får).
+- Det finns tre typer av rum:
+  - Enkelrum som tillåter enbart en 1 gäst
+  - Dubbelrum som tillåter 2 gäster
+  - Svit som tillåter 3 gäster
+- Enkelrum kostar 500 kr / natt
+- Dubbelrum kostar 1000 kr / natt
+- Svit kostar 1500 kr / natt
+- Det går att ha olika typer av rum i en bokning men antalet gäster måste stämma överens med ovan logik. Exempel: 3 personer behöver antingen boka en svit eller ett enkelrum och ett dubbelrum.
 
 #### Tekniska krav
 
-* Serverless framework
-* API Gateway
-* AWS Lambda
-* DynamoDB
-* Det finns felhantering ifall något går fel mot DynamoDB och ifall man försöker skicka in fel värden från body.
+- Serverless framework
+- API Gateway
+- AWS Lambda
+- DynamoDB
+- Det finns felhantering ifall något går fel mot DynamoDB och ifall man försöker skicka in fel värden från body.
