@@ -1,6 +1,7 @@
 import { PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { client } from "../../services/db.mjs";
 import { response } from "../../utils/responses.mjs";
+import { v4 as uuid } from "uuid";
 
 export const handler = async (event) => {
   if (!event.body) {
@@ -11,7 +12,7 @@ export const handler = async (event) => {
     const { name, email, guests, rooms, checkIn, checkOut } = JSON.parse(
       event.body
     );
-    const { single, double, suite } = rooms;
+    const { single = 0, double = 0, suite = 0 } = rooms;
 
     if (!name || !email || !guests || !rooms || !checkIn || !checkOut) {
       return response(
@@ -29,33 +30,53 @@ export const handler = async (event) => {
     const emailRegex = /^[^\s@]+@[^\s@]+.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return response(400, "Invalid email.");
-
     }
-    /* TODO: Kolla att checkut är senare än checkin */
+    /* TODO: Kolla att checkut är senare än checkin + formatet på datumet YYYY-MM-DD */
 
     /* TODO: Skriv en funktion som kollar att gästerna får plats i rummet och att det finns rum på hotellet */
 
-    const command = new PutItemCommand {
-      sk: 
-    }
-  } catch (error) {
-    console.error("Error adding note:", error);
+    const bookingId = uuid().substring(0, 8);
 
-    // AWS errors (if available)
+    const nights =
+      (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
+      (1000 * 60 * 60 * 24);
+    const totalPrice =
+      (rooms.single * 500 + rooms.double * 1000 + rooms.suite * 1500) * nights;
+
+    console.log("rooms:", rooms);
+
+    const command = new PutItemCommand({
+      TableName: "bonzAiTable",
+      Item: {
+        pk: { S: "BOOKING" },
+        sk: { S: `ID#${bookingId}` },
+        name: { S: name },
+        email: { S: email },
+        guests: { N: guests.toString() },
+        checkIn: { S: checkIn },
+        checkOut: { S: checkOut },
+        rooms: {
+          M: {
+            single: { N: rooms.single.toString() },
+            double: { N: rooms.double.toString() },
+            suite: { N: rooms.suite.toString() },
+          },
+        },
+        price: { N: totalPrice.toString() },
+      },
+    });
+
+    await client.send(command);
+
+    return response(200, command);
+  } catch (error) {
+    console.error("Error:", error);
+
     const awsStatus = error.$metadata?.httpStatusCode;
     if (awsStatus) {
-      return sendResponse(awsStatus, error.message);
+      return response(awsStatus, error.message);
     }
 
-    // Eventual errors in code or unexpected errors
-    return sendResponse(500, "Internal Server Error");
+    return response(500, "Internal Server Error");
   }
-  }
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: "Go Serverless v4! Your function executed successfully!",
-    }),
-  };
 };
