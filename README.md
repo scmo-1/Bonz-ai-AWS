@@ -1,5 +1,7 @@
 # Bonz-ai-AWS
 
+## grupp: Simon Olsson, Oskar Blomberg, Andrei Manea
+
 ## Gruppexamination: Bonz.ai 
 
 Bonz.ai, företaget bakom hotellet, har alltid strävat efter att vara i framkant när det gäller att använda teknik för att förbättra kundupplevelsen. De har en stark kultur av innovation och är inte rädda för att tänka utanför boxen.
