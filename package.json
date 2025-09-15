@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "dotenv": "^17.2.2"
+  },
+  "devDependencies": {
+    "serverless-dotenv-plugin": "^6.0.0"
+  }
+}

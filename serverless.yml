@@ -1,0 +1,50 @@
+plugins:
+  - serverless-dotenv-plugin
+
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: ${env:ORG}
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: bonzAi
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: eu-north-1
+  iam:
+    role: ${env:IAM}
+  # Uncomment to easily set up a custom domain. Read the docs for more details:
+  # https://www.serverless.com/framework/docs/providers/aws/guide/domains
+  # domain: api.example.com
+
+functions:
+  adminBooking:
+    handler: functions/adminBooking/index.handler
+    description: BonzAi - Fetch all bookings
+    events:
+      - httpApi:
+          path: /api/admin/bookings
+          method: get
+
+  newBooking:
+    handler: functions/newBooking/index.handler
+    description: BonzAi - Create new booking
+    events:
+      - httpApi:
+          path: /api/booking
+          method: post
+
+  changeBooking:
+    handler: functions/changeBooking/index.handler
+    description: BonzAi - Edit booking by bookingID
+    events:
+      - httpApi:
+          path: /api/booking/{bookingId}
+          method: put
+
+  deleteBooking:
+    handler: functions/deleteBooking/index.handler
+    description: BonzAi - Delete booking by bookingID
+    events:
+      - httpApi:
+          path: /api/booking/{bookingId}
+          method: delete
