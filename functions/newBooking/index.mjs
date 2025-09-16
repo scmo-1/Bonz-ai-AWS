@@ -12,7 +12,6 @@ export const handler = async (event) => {
     const { name, email, guests, rooms, checkIn, checkOut } = JSON.parse(
       event.body
     );
-    const { single = 0, double = 0, suite = 0 } = rooms;
 
     if (!name || !email || !guests || !rooms || !checkIn || !checkOut) {
       return response(
@@ -20,12 +19,17 @@ export const handler = async (event) => {
         "Body must contain 'name', 'email', 'guests' (number of guests), 'rooms', 'checkin' (date) and 'checkout' (date)"
       );
     }
+    const single = rooms.single || 0;
+    const double = rooms.double || 0;
+    const suite = rooms.suite || 0;
+
     if (
       Number.parseInt(single) < 1 &&
       Number.parseInt(double) < 1 &&
       Number.parseInt(suite) < 1
-    )
+    ) {
       return response(400, "At least one room must be > 0.");
+    }
 
     const emailRegex = /^[^\s@]+@[^\s@]+.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -40,8 +44,7 @@ export const handler = async (event) => {
     const nights =
       (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
       (1000 * 60 * 60 * 24);
-    const totalPrice =
-      (rooms.single * 500 + rooms.double * 1000 + rooms.suite * 1500) * nights;
+    const totalPrice = (single * 500 + double * 1000 + suite * 1500) * nights;
 
     console.log("rooms:", rooms);
 
@@ -57,9 +60,9 @@ export const handler = async (event) => {
         checkOut: { S: checkOut },
         rooms: {
           M: {
-            single: { N: rooms.single.toString() },
-            double: { N: rooms.double.toString() },
-            suite: { N: rooms.suite.toString() },
+            single: { N: single.toString() },
+            double: { N: double.toString() },
+            suite: { N: suite.toString() },
           },
         },
         price: { N: totalPrice.toString() },
