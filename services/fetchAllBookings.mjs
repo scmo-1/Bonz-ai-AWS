@@ -15,6 +15,7 @@ export const fetchBookings = async () => {
     const result = await client.send(params);
     return result.Items.map(unmarshall);
   } catch (error) {
-    return console.error("Fetch Error:", error.message);
+    console.error("Fetch Error:", error.message);
+    throw error;
   }
 };
