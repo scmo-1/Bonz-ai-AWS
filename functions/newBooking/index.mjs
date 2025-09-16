@@ -35,9 +35,6 @@ export const handler = async (event) => {
     if (!emailRegex.test(email)) {
       return response(400, "Invalid email.");
     }
-    /* TODO: Kolla att checkut är senare än checkin + formatet på datumet YYYY-MM-DD */
-
-    /* TODO: Skriv en funktion som kollar att gästerna får plats i rummet och att det finns rum på hotellet */
 
     const bookingId = uuid().substring(0, 8);
 
@@ -46,7 +43,14 @@ export const handler = async (event) => {
       (1000 * 60 * 60 * 24);
     const totalPrice = (single * 500 + double * 1000 + suite * 1500) * nights;
 
-    console.log("rooms:", rooms);
+    if (nights < 1) {
+      return response(
+        400,
+        "Checkout date must be set later than check in date."
+      );
+    }
+    /* TODO: Skriv en funktion som kollar att gästerna får plats i rummet och att det finns rum på hotellet */
+    console.log(nights);
 
     const command = new PutItemCommand({
       TableName: "bonzAiTable",
