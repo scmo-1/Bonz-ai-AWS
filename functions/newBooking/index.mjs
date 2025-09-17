@@ -95,12 +95,11 @@ export const handler = async (event) => {
     await client.send(command);
 
     /* Skicka svar */
-    let roomsBooked = [];
+    let roomsBooked = {};
     [single, double, suite].forEach((room, idx) => {
       if (room > 0) {
         const type = ["single", "double", "suite"][idx];
-        const label = Number(room) === 1 ? type : type + "s";
-        roomsBooked.push(`${room} ${label}`);
+        roomsBooked[type] = Number(room);
       }
     });
 
