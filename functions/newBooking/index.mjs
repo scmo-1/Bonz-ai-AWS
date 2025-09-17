@@ -2,6 +2,7 @@ import { PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { client } from "../../services/db.mjs";
 import { response } from "../../utils/responses.mjs";
 import { isRoomCapEnough } from "../../utils/isRoomCapEnough.mjs";
+import { isRoomsAvailable } from "../../utils/isRoomsAvailable.mjs";
 import { v4 as uuid } from "uuid";
 
 export const handler = async (event) => {
@@ -22,15 +23,16 @@ export const handler = async (event) => {
       );
     }
     /* Check if any rooms are chosen*/
-    const single = rooms.single || 0;
-    const double = rooms.double || 0;
-    const suite = rooms.suite || 0;
+    let single = parseInt(rooms.single);
+    let double = parseInt(rooms.double);
+    let suite = parseInt(rooms.suite);
 
-    if (
-      Number.parseInt(single) < 1 &&
-      Number.parseInt(double) < 1 &&
-      Number.parseInt(suite) < 1
-    ) {
+    // If parseInt failed (NaN) → default to 0
+    single = Number.isNaN(single) ? 0 : single;
+    double = Number.isNaN(double) ? 0 : double;
+    suite = Number.isNaN(suite) ? 0 : suite;
+
+    if (single < 1 && double < 1 && suite < 1) {
       return response(400, "At least one room must be > 0.");
     }
 
@@ -60,8 +62,11 @@ export const handler = async (event) => {
         "Checkout date must be set later than check in date."
       );
     }
-
-    /* TODO: Skapa/implementera kolla-hotellkapacitets-funktion */
+    /* Check availability  */
+    const roomsAvailable = await isRoomsAvailable({ single, double, suite });
+    if (!roomsAvailable) {
+      return response(409, "The requested amount of rooms is not available.");
+    }
 
     /* Create booking */
     const bookingId = uuid().substring(0, 8);
@@ -89,7 +94,27 @@ export const handler = async (event) => {
 
     await client.send(command);
 
-    return response(200, command);
+    /* Skicka svar */
+    let roomsBooked = [];
+    [single, double, suite].forEach((room, idx) => {
+      if (room > 0) {
+        const type = ["single", "double", "suite"][idx];
+        const label = Number(room) === 1 ? type : type + "s";
+        roomsBooked.push(`${room} ${label}`);
+      }
+    });
+
+    const bookingResponse = {
+      bookingId,
+      name,
+      guests,
+      roomsBooked,
+      checkIn,
+      checkOut,
+      totalPrice: totalPrice + " :-",
+    };
+
+    return response(200, bookingResponse);
   } catch (error) {
     console.error("Error:", error);
 
