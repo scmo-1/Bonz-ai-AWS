@@ -40,7 +40,7 @@ functions:
           path: /api/booking/{bookingId}
           method: put
 
-#delete booking - added cors to avoid insomnia/postman issues
+#delete booking - removed cors: true
 
   deleteBooking:
     handler: functions/deleteBooking/index.handler
@@ -49,7 +49,6 @@ functions:
       - httpApi:
           path: /api/booking/{bookingId}
           method: delete
-          cors: true
 
 # DATABASE
 
