@@ -40,6 +40,8 @@ functions:
           path: /api/booking/{bookingId}
           method: put
 
+#delete booking - removed cors: true
+
   deleteBooking:
     handler: functions/deleteBooking/index.handler
     description: BonzAi - Delete booking by bookingID
