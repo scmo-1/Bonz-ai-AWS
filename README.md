@@ -25,7 +25,7 @@ För att skapa/ändra data ska request body innehålla nedanstående nycklar enl
 }
 ```
 
-Vad gäller rooms-objektet behövs endast aktuella rumstyper anges. Följande är alltså acceptabelt:
+Vad gäller rooms-objektet behöver endast aktuella rumstyper anges. Följande är alltså acceptabelt:
 
 ```
 "rooms":{
@@ -62,14 +62,3 @@ _Rum_
 - AWS Lambda
 - DynamoDB
 - Det finns felhantering ifall något går fel mot DynamoDB och ifall man försöker skicka in fel värden från body.
-
-````
-
-```
-
-```
-
-```
-
-```
-````
