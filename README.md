@@ -1,16 +1,37 @@
-# Bonz-ai-AWS
+# Gruppexamination: Bonz-ai-AWS
 
 ## grupp: Simon Olsson, Oskar Blomberg, Andrei Manea
 
-## Gruppexamination: Bonz.ai
+## Användarinformation
 
-Bonz.ai, företaget bakom hotellet, har alltid strävat efter att vara i framkant när det gäller att använda teknik för att förbättra kundupplevelsen. De har en stark kultur av innovation och är inte rädda för att tänka utanför boxen.
+En .env-fil behöver skapas. Den ska innehålla följande två nycklar: <br>
+**ORG=**{din organisation} <br>
+**IAM=**{en roll med relevanta behörigheter}
 
-Ni har blivit anlitade för att bygga deras boknings-API, valet i detta projekt föll på en serverless arkitektur i AWS. Detta innebär att ni inte behöver oroa sig för att hantera eller underhålla servrar. Istället kan ni fokusera på att bygga och förbättra er applikation. Dessutom gör serverless arkitektur det möjligt för Bonz.ai att skala upp eller ned baserat på efterfrågan, vilket är perfekt för deras bokningssystem som kan ha olika trafik vid olika tider på dagen eller året. ☁️
+För att skapa/ändra data ska request body innehålla nedanstående nycklar enligt följande format:
 
-För att lagra all bokningsinformation har DynamoDB valts, en NoSQL databas som erbjuds av AWS. DynamoDB är en utmärkt val för deras boknings-API eftersom den erbjuder snabb och förutsägbar prestanda samt automatisk skalning.
+```
+{
+  "name":"Jack Torrance",
+  "email":"allworkandnoplay@mail.com",
+  "guests": 3,
+  "rooms":{
+    "single": 1,
+    "double": 1,
+    "suite": 1
+  },
+  "checkIn":"2025-09-10",
+  "checkOut":"2025-09-13"
+}
+```
 
-## Instruktioner
+Vad gäller rooms-objektet behövs endast aktuella rumstyper anges. Följande är alltså acceptabelt:
+
+```
+"rooms":{
+  "suite": 1
+}
+```
 
 #### Kravspecifikation och user stories
 
@@ -41,3 +62,14 @@ _Rum_
 - AWS Lambda
 - DynamoDB
 - Det finns felhantering ifall något går fel mot DynamoDB och ifall man försöker skicka in fel värden från body.
+
+````
+
+```
+
+```
+
+```
+
+```
+````
