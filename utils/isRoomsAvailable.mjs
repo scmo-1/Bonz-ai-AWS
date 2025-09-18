@@ -1,13 +1,13 @@
-import { fetchBookings } from "../services/fetchAllBookings.mjs";
-
-export const isRoomsAvailable = async ({
-  single = 0,
-  double = 0,
-  suite = 0,
-}) => {
+export const isRoomsAvailable = async (
+  { single = 0, double = 0, suite = 0 },
+  allBookings,
+  bookingId
+) => {
   const bookingTotalRooms = single + double + suite;
 
-  const roomsAlreadyBooked = await fetchBookings();
+  const roomsAlreadyBooked = bookingId
+    ? allBookings.filter((booking) => booking.sk !== `ID#${bookingId}`)
+    : allBookings;
 
   const bookedRooms = roomsAlreadyBooked.reduce((sum, booked) => {
     const { single = 0, double = 0, suite = 0 } = booked.rooms || {};
