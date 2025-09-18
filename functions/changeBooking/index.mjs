@@ -28,20 +28,27 @@ export const handler = async (event) => {
       );
     }
 
-    /* Check name length */
-    if (name.trim() < 2) {
+    /* Check name lenght */
+    if (name.trim().length < 2) {
       return response(400, "'Name' not provided");
     }
 
-    /* Check if any rooms are chosen*/
-    let single = parseInt(rooms.single);
-    let double = parseInt(rooms.double);
-    let suite = parseInt(rooms.suite);
+    /* Check if any rooms are chosen and if they are integers*/
 
-    // If parseInt failed (NaN) → default to 0
-    single = Number.isNaN(single) ? 0 : single;
-    double = Number.isNaN(double) ? 0 : double;
-    suite = Number.isNaN(suite) ? 0 : suite;
+    let single = rooms.single ? Number(rooms.single) : 0;
+    let double = rooms.double ? Number(rooms.double) : 0;
+    let suite = rooms.suite ? Number(rooms.suite) : 0;
+
+    if (
+      isNaN(single) ||
+      isNaN(double) ||
+      isNaN(suite) ||
+      !Number.isInteger(single) ||
+      !Number.isInteger(double) ||
+      !Number.isInteger(suite)
+    ) {
+      return response(400, "All room inputs must be positive integers.");
+    }
 
     if (single < 1 && double < 1 && suite < 1) {
       return response(400, "At least one room must be > 0.");
@@ -52,13 +59,17 @@ export const handler = async (event) => {
     }
 
     /* Check if 'guests' is a valid number */
-    let guestsInt = parseInt(guests);
-    if (Number.isNaN(guestsInt) || guestsInt < 1) {
-      return response(400, "'Guests' must be a positive integer.");
+    let guestsNumber = Number(guests);
+    if (
+      isNaN(guestsNumber) ||
+      !Number.isInteger(guestsNumber) ||
+      guestsNumber < 1
+    ) {
+      return response(400, "'Guests' must be a positive integer");
     }
 
     /* Compare guests with room capacity */
-    if (!isRoomCapEnough(guests, { single, double, suite })) {
+    if (!isRoomCapEnough(guestsNumber, { single, double, suite })) {
       return response(
         400,
         "The amount of guests doesn't fit in the chosen room constellation."
@@ -66,23 +77,30 @@ export const handler = async (event) => {
     }
 
     /* Check valid email format */
-    const emailRegex = /^[^\s@]+@[^\s@]+.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     if (!emailRegex.test(email)) {
       return response(400, "Invalid email.");
     }
 
     /* Check checkout times and price */
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+
+    if (isNaN(checkInDate.getTime()) || isNaN(checkOutDate.getTime())) {
+      return response(400, "Invalid check-in or check-out date.");
+    }
+
     const nights =
-      (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
-      (1000 * 60 * 60 * 24);
-    const totalPrice = (single * 500 + double * 1000 + suite * 1500) * nights;
+      (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24);
 
     if (nights < 1) {
       return response(
         400,
-        "Checkout date must be set later than check in date."
+        "Checkout date must be set later than check-in date."
       );
     }
+
+    const totalPrice = (single * 500 + double * 1000 + suite * 1500) * nights;
 
     /* Fetch previous bookings */
     const allBookings = await fetchBookings();
@@ -109,7 +127,7 @@ export const handler = async (event) => {
         sk: { S: `ID#${bookingId}` },
         name: { S: name },
         email: { S: email },
-        guests: { N: guests.toString() },
+        guests: { N: guestsNumber.toString() },
         checkIn: { S: checkIn },
         checkOut: { S: checkOut },
         rooms: {
@@ -138,7 +156,7 @@ export const handler = async (event) => {
       message: `Booking ${bookingId} updated successfully`,
       bookingId,
       name,
-      guests,
+      guests: guestsNumber,
       roomsBooked,
       checkIn,
       checkOut,
