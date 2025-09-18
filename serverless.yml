@@ -12,9 +12,8 @@ provider:
   region: eu-north-1
   iam:
     role: ${env:IAM}
-  # Uncomment to easily set up a custom domain. Read the docs for more details:
-  # https://www.serverless.com/framework/docs/providers/aws/guide/domains
-  # domain: api.example.com
+
+# FUNCTIONS
 
 functions:
   adminBooking:
@@ -41,6 +40,8 @@ functions:
           path: /api/booking/{bookingId}
           method: put
 
+#delete booking - removed cors: true
+
   deleteBooking:
     handler: functions/deleteBooking/index.handler
     description: BonzAi - Delete booking by bookingID
@@ -48,3 +49,23 @@ functions:
       - httpApi:
           path: /api/booking/{bookingId}
           method: delete
+
+# DATABASE
+
+resources:
+  Resources:
+    bonzAiTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: bonzAiTable
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S
+          - AttributeName: sk
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+          - AttributeName: sk
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
