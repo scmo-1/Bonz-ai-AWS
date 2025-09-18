@@ -1,5 +1,6 @@
 import { PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { client } from "../../services/db.mjs";
+import { fetchBookings } from "../../services/fetchAllBookings.mjs";
 import { response } from "../../utils/responses.mjs";
 import { isRoomCapEnough } from "../../utils/isRoomCapEnough.mjs";
 import { isRoomsAvailable } from "../../utils/isRoomsAvailable.mjs";
@@ -26,6 +27,12 @@ export const handler = async (event) => {
         "Body must contain 'name', 'email', 'guests' (number of guests), 'rooms', 'checkin' (date) and 'checkout' (date)"
       );
     }
+
+    /* Check name length */
+    if (name.trim() < 2) {
+      return response(400, "'Name' not provided");
+    }
+
     /* Check if any rooms are chosen*/
     let single = parseInt(rooms.single);
     let double = parseInt(rooms.double);
@@ -38,6 +45,16 @@ export const handler = async (event) => {
 
     if (single < 1 && double < 1 && suite < 1) {
       return response(400, "At least one room must be > 0.");
+    }
+
+    if (single < 0 || double < 0 || suite < 0) {
+      return response(400, "No rooms may be a negative number");
+    }
+
+    /* Check if 'guests' is a valid number */
+    let guestsInt = parseInt(guests);
+    if (Number.isNaN(guestsInt) || guestsInt < 1) {
+      return response(400, "'Guests' must be a positive integer.");
     }
 
     /* Compare guests with room capacity */
@@ -66,8 +83,21 @@ export const handler = async (event) => {
         "Checkout date must be set later than check in date."
       );
     }
+
+    /* Fetch previous bookings */
+    const allBookings = await fetchBookings();
+
+    /* See if booking exists in database */
+    if (!allBookings.some((booking) => booking.sk === `ID#${bookingId}`)) {
+      return response(404, "No booking with that id found.");
+    }
+
     /* Check availability  */
-    const roomsAvailable = await isRoomsAvailable({ single, double, suite });
+    const roomsAvailable = await isRoomsAvailable(
+      { single, double, suite },
+      allBookings,
+      bookingId
+    );
     if (!roomsAvailable) {
       return response(409, "The requested amount of rooms is not available.");
     }
